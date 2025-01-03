@@ -1,4 +1,6 @@
-const express = require('express')
+const express = require('express');
+const { request } = require('http');
+const { allowedNodeEnvironmentFlags } = require('process');
 const app = express()
 
 let endangeredSpeciesData = {
@@ -93,10 +95,31 @@ let endangeredSpeciesData = {
 // - sends back the the "Amazon Rainforest" region object when the client goes to /region/1
 // - EXTRA CREDIT: modify your region route handler to send any region using the dynamic parameter region/{index}
 // - sends back a 404 page for all other paths
+app.use((req,res,next)=>{
+    console.log(req.method + "" + req.url)
+    next()
+})
 
+app.get("/",(req,res) => {
+    res.status(200).send("<h2>Explore data on endangered species, their habitats, threats, and conservation efforts.</h3>") 
+})
 
+app.get("/species",(req,res) => {
+    res.status(200).json(endangeredSpeciesData.species)
+})
 
+app.get("/conversation",(req,res) => {
+    res.status(200).json(endangeredSpeciesData.conservation_efforts)
+})
 
+app.get("/region/:1",(req,res) => {
+    const one = req.params.1
+    res.status(200).json(endangeredSpeciesData.conservation_efforts.regions_at_risk[0])
+})
+
+app.use((req,res,next) => {
+    res.status(404).send("Connot get")
+})
 
 app.listen(3000, () => {
     console.log("Server running")
